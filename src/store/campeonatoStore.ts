@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Partida, Selecao, ClassificacaoGrupo, Desempenho } from '../types';
 import { selecoesMock } from '../data/mock';
-import { gerarPartidasIniciais } from '../data/geradorCalendario';
+import { gerarCalendarioFase1 } from '../data/geradorCalendario';
 import { supabase } from '@/lib/supabase';
 import { ordenarClassificacao, calcularAproveitamento } from '../utils/tiebreakers';
 
@@ -45,7 +45,7 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
     
     if (error || !data || data.length === 0) {
       console.log("Banco Vazio. Semeando dados iniciais da Fase 1...");
-      const partidasGeradas = gerarPartidasIniciais();
+      const partidasGeradas = gerarCalendarioFase1(selecoesMock);
       await supabase.from('partidas').insert(partidasGeradas);
       set({ partidas: partidasGeradas, isCarregandoBanco: false });
       get().recalcularClassificacao();
