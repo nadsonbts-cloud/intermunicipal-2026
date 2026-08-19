@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Partida, Selecao, ClassificacaoGrupo, Desempenho } from '../types';
+import { Partida, Selecao, ClassificacaoGrupo } from '../types';
 import { selecoesMock } from '../data/mock';
 import { gerarCalendarioFase1 } from '../data/geradorCalendario';
 import { supabase } from '@/lib/supabase';
@@ -8,7 +8,7 @@ import { ordenarClassificacao, calcularAproveitamento } from '../utils/tiebreake
 interface CampeonatoState {
   selecoes: Selecao[];
   partidas: Partida[];
-  classificacaoAtual: Record<string, Desempenho[]>;
+  classificacaoAtual: Record<string, ClassificacaoGrupo[]>;
   isCarregandoBanco: boolean;
   rankingGeral: ClassificacaoGrupo[];
   
