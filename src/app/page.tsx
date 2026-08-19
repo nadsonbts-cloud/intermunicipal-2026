@@ -1,69 +1,152 @@
-import Image from "next/image";
+'use client';
+import { useState, useEffect } from 'react';
+import { Clock, MapPin, Search } from 'lucide-react';
+import { useCampeonatoStore } from '@/store/campeonatoStore';
 
 export default function Home() {
+  const { partidas, selecoes, atualizarPlacar } = useCampeonatoStore();
+  const [faseFiltro, setFaseFiltro] = useState<number>(1);
+  const [rodadaFiltro, setRodadaFiltro] = useState<number>(1);
+  const [grupoFiltro, setGrupoFiltro] = useState<string>('Todos');
+  const [montado, setMontado] = useState(false);
+
+  useEffect(() => {
+    setMontado(true);
+  }, []);
+
+  if (!montado) return null; // Evitar hydration mismatch no estado global
+
+  let partidasFiltradas = partidas.filter(p => p.fase === faseFiltro && p.rodada === rodadaFiltro);
+  
+  if (grupoFiltro !== 'Todos') {
+    partidasFiltradas = partidasFiltradas.filter(p => {
+      const mandante = selecoes.find(s => s.id === p.selecaoMandanteId);
+      return mandante?.grupo === grupoFiltro;
+    });
+  }
+
+  const handleSalvarPlacar = (id: string, gm: number, gv: number) => {
+    atualizarPlacar(id, gm, gv, 'FINALIZADO');
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="max-w-5xl mx-auto">
+      <header className="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Painel de Jogos (Oficial)</h1>
+          <p className="text-slate-400 mt-2">Atualize os placares para recalcular as tabelas em tempo real.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        
+        <div className="flex flex-wrap gap-2">
+          <select 
+            value={faseFiltro} onChange={(e) => setFaseFiltro(Number(e.target.value))}
+            className="bg-slate-800 border border-slate-700 text-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-emerald-500"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <option value={1}>Fase 1 (Grupos)</option>
+            <option value={2}>Fase 2 (Mata-mata)</option>
+          </select>
+          <select 
+            value={rodadaFiltro} onChange={(e) => setRodadaFiltro(Number(e.target.value))}
+            className="bg-slate-800 border border-slate-700 text-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-emerald-500"
           >
-            Documentation
-          </a>
+            {[1,2,3,4,5,6].map(r => <option key={r} value={r}>Rodada {r}</option>)}
+          </select>
+          <select 
+            value={grupoFiltro} onChange={(e) => setGrupoFiltro(e.target.value)}
+            className="bg-slate-800 border border-slate-700 text-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-emerald-500"
+          >
+            <option value="Todos">Todos os Grupos</option>
+            {Array.from({length: 15}, (_, i) => `GR-${String(i+1).padStart(2, '0')}`).map(g => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
         </div>
-      </main>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {partidasFiltradas.map((jogo) => {
+          const mandante = selecoes.find(s => s.id === jogo.selecaoMandanteId)!;
+          const visitante = selecoes.find(s => s.id === jogo.selecaoVisitanteId)!;
+
+          return (
+            <div key={jogo.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg shadow-black/20 flex flex-col justify-between">
+              <div className="bg-slate-800/50 px-4 py-2 flex justify-between items-center border-b border-slate-800 text-xs font-semibold">
+                <span className={`flex items-center gap-1 ${jogo.status === 'FINALIZADO' ? 'text-slate-400' : 'text-emerald-400'}`}>
+                  {jogo.status === 'AO_VIVO' && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
+                  {jogo.status === 'FINALIZADO' ? 'ENCERRADO' : jogo.status === 'AO_VIVO' ? 'AO VIVO' : 'AGENDADO'}
+                </span>
+                <span className="text-slate-400 flex items-center gap-1">
+                  <Clock size={12} /> {jogo.data}
+                </span>
+              </div>
+              
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="text-center flex-1 w-24">
+                    <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
+                      {mandante.nome.substring(0, 3).toUpperCase()}
+                    </div>
+                    <p className="text-sm font-semibold text-slate-200 truncate" title={mandante.nome}>{mandante.nome}</p>
+                  </div>
+                  
+                  <div className="px-2 flex gap-1 items-center">
+                    <input 
+                      type="number" 
+                      min="0"
+                      className="w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-xl font-bold focus:border-emerald-500 focus:outline-none"
+                      defaultValue={jogo.golsMandante ?? ''}
+                      onBlur={(e) => {
+                        if(e.target.value !== '') {
+                           const gv = document.getElementById(`gv-${jogo.id}`) as HTMLInputElement;
+                           if (gv.value !== '') handleSalvarPlacar(jogo.id, parseInt(e.target.value), parseInt(gv.value));
+                        }
+                      }}
+                      id={`gm-${jogo.id}`}
+                    />
+                    <span className="text-slate-500">x</span>
+                    <input 
+                      type="number" 
+                      min="0"
+                      className="w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-xl font-bold focus:border-emerald-500 focus:outline-none"
+                      defaultValue={jogo.golsVisitante ?? ''}
+                      onBlur={(e) => {
+                        if(e.target.value !== '') {
+                           const gm = document.getElementById(`gm-${jogo.id}`) as HTMLInputElement;
+                           if (gm.value !== '') handleSalvarPlacar(jogo.id, parseInt(gm.value), parseInt(e.target.value));
+                        }
+                      }}
+                      id={`gv-${jogo.id}`}
+                    />
+                  </div>
+
+                  <div className="text-center flex-1 w-24">
+                    <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
+                      {visitante.nome.substring(0, 3).toUpperCase()}
+                    </div>
+                    <p className="text-sm font-semibold text-slate-200 truncate" title={visitante.nome}>{visitante.nome}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-xs text-slate-500 mt-auto pt-4 border-t border-slate-800">
+                  <span className="flex items-center gap-1 truncate pr-2" title={jogo.estadio}>
+                    <MapPin size={12} className="shrink-0" />
+                    <span className="truncate">{jogo.cidade}</span>
+                  </span>
+                  <span className="text-emerald-500/70 bg-emerald-500/10 px-2 py-0.5 rounded shrink-0">
+                    {mandante.grupo}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {partidasFiltradas.length === 0 && (
+           <div className="col-span-full py-12 text-center text-slate-500 flex flex-col items-center">
+             <Search size={48} className="mb-4 opacity-20" />
+             <p>Nenhuma partida encontrada para este filtro.</p>
+           </div>
+        )}
+      </div>
     </div>
   );
 }
