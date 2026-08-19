@@ -4,7 +4,7 @@ import { Clock, MapPin, Search } from 'lucide-react';
 import { useCampeonatoStore } from '@/store/campeonatoStore';
 
 export default function Home() {
-  const { partidas, selecoes, atualizarPlacar } = useCampeonatoStore();
+  const { partidas, selecoes, atualizarPlacar, isCarregandoBanco, inicializarBanco } = useCampeonatoStore();
   const [faseFiltro, setFaseFiltro] = useState<number>(1);
   const [rodadaFiltro, setRodadaFiltro] = useState<number>(1);
   const [grupoFiltro, setGrupoFiltro] = useState<string>('Todos');
@@ -12,9 +12,14 @@ export default function Home() {
 
   useEffect(() => {
     setMontado(true);
-  }, []);
+    inicializarBanco();
+  }, [inicializarBanco]);
 
   if (!montado) return null; // Evitar hydration mismatch no estado global
+  
+  if (isCarregandoBanco) {
+    return <div className="flex justify-center items-center h-64 text-emerald-500 font-bold">Carregando Calendário...</div>;
+  }
 
   let partidasFiltradas = partidas.filter(p => p.fase === faseFiltro && p.rodada === rodadaFiltro);
   
