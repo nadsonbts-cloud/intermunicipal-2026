@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { Partida, Selecao, ClassificacaoGrupo } from '../types';
-import { selecoesMock } from '../data/mock';
 import { gerarCalendarioFase1 } from '../data/geradorCalendario';
 import { supabase } from '@/lib/supabase';
 import { ordenarClassificacao, calcularAproveitamento } from '../utils/tiebreakers';
@@ -13,15 +12,15 @@ interface CampeonatoState {
   rankingGeral: ClassificacaoGrupo[];
   
   inicializarBanco: () => Promise<void>;
-  atualizarPlacar: (partidaId: string, golsMandante: number, golsVisitante: number, status: 'AGENDADO'|'AO_VIVO'|'FINALIZADO') => void;
+  atualizarPlacar: (partidaId: string, gols_mandante: number, gols_visitante: number, status: 'AGENDADO'|'AO_VIVO'|'FINALIZADO') => void;
   recalcularClassificacao: () => void;
   gerarChavesFase2: () => void;
   gerarChavesFase3: () => void;
 }
 
-const estadoInicialClassificacao = (): Record<string, ClassificacaoGrupo[]> => {
+const criarEstadoInicialClassificacao = (selecoes: Selecao[]): Record<string, ClassificacaoGrupo[]> => {
   const grupos: Record<string, ClassificacaoGrupo[]> = {};
-  selecoesMock.forEach(s => {
+  selecoes.forEach(s => {
     if (!grupos[s.grupo]) grupos[s.grupo] = [];
     grupos[s.grupo].push({
       selecaoId: s.id,
@@ -34,27 +33,44 @@ const estadoInicialClassificacao = (): Record<string, ClassificacaoGrupo[]> => {
 };
 
 export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
-  selecoes: selecoesMock,
+  selecoes: [],
   partidas: [],
-  classificacaoAtual: estadoInicialClassificacao(),
+  classificacaoAtual: {},
   isCarregandoBanco: true,
   rankingGeral: [],
 
   inicializarBanco: async () => {
-    const { data, error } = await supabase.from('partidas').select('*').order('fase', { ascending: true });
-    
-    if (error || !data || data.length === 0) {
-      console.log("Banco Vazio. Semeando dados iniciais da Fase 1...");
-      const partidasGeradas = gerarCalendarioFase1(selecoesMock);
-      await supabase.from('partidas').insert(partidasGeradas);
-      set({ partidas: partidasGeradas, isCarregandoBanco: false });
-      get().recalcularClassificacao();
-    } else {
-      console.log("Dados carregados do Supabase!", data.length, "partidas.");
-      set({ partidas: data as Partida[], isCarregandoBanco: false });
-      get().recalcularClassificacao();
-    }
+    // 1. Carregar Equipes
+    const { data: equipesData, error: equipesError } = await supabase.from('equipes').select('*');
+    if (equipesError) console.error("Erro ao carregar equipes:", equipesError);
+    const selecoesCarregadas = (equipesData || []) as Selecao[];
 
+    // Atualiza estado de selecoes e prepara classificação vazia
+    set({ 
+      selecoes: selecoesCarregadas, 
+      classificacaoAtual: criarEstadoInicialClassificacao(selecoesCarregadas)
+    });
+
+    // 2. Carregar Partidas
+    const { data: partidasData, error: partidasError } = await supabase.from('partidas').select('*').order('fase', { ascending: true });
+    
+    if (partidasError || !partidasData || partidasData.length === 0) {
+      if (selecoesCarregadas.length > 0) {
+        console.log("Partidas vazias. Semeando dados iniciais da Fase 1...");
+        const partidasGeradas = gerarCalendarioFase1(selecoesCarregadas);
+        await supabase.from('partidas').insert(partidasGeradas);
+        set({ partidas: partidasGeradas, isCarregandoBanco: false });
+      } else {
+         set({ isCarregandoBanco: false });
+      }
+    } else {
+      console.log("Dados carregados do Supabase!", partidasData.length, "partidas.");
+      set({ partidas: partidasData as Partida[], isCarregandoBanco: false });
+    }
+    
+    get().recalcularClassificacao();
+
+    // 3. Inscrever-se para atualizações Realtime
     supabase.channel('custom-all-channel')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'partidas' }, (payload) => {
         const novaPartida = payload.new as Partida;
@@ -63,13 +79,18 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
            return { partidas: novasPartidas };
         });
         get().recalcularClassificacao();
-      }).subscribe();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'equipes' }, () => {
+         // Se adicionarem/removerem equipe, recarrega a página
+         window.location.reload();
+      })
+      .subscribe();
   },
 
-  atualizarPlacar: (partidaId, golsMandante, golsVisitante, status = 'FINALIZADO') => {
+  atualizarPlacar: (partidaId, gols_mandante, gols_visitante, status = 'FINALIZADO') => {
     set(state => {
       const novasPartidas = state.partidas.map(p => 
-        p.id === partidaId ? { ...p, golsMandante, golsVisitante, status } : p
+        p.id === partidaId ? { ...p, gols_mandante, gols_visitante, status } : p
       );
       return { partidas: novasPartidas };
     });
@@ -78,18 +99,22 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
 
   recalcularClassificacao: () => {
     const { partidas, selecoes } = get();
-    const classificacao = estadoInicialClassificacao();
+    if (selecoes.length === 0) return;
+
+    const classificacao = criarEstadoInicialClassificacao(selecoes);
     
     partidas.filter(p => p.status === 'FINALIZADO' && p.fase === 1).forEach(p => {
-      const mandante = selecoes.find(s => s.id === p.selecaoMandanteId);
-      const visitante = selecoes.find(s => s.id === p.selecaoVisitanteId);
+      const mandante = selecoes.find(s => s.id === p.mandante_id);
+      const visitante = selecoes.find(s => s.id === p.visitante_id);
       if(!mandante || !visitante) return;
       
-      const cMandante = classificacao[mandante.grupo].find(c => c.selecaoId === mandante.id)!;
-      const cVisitante = classificacao[visitante.grupo].find(c => c.selecaoId === visitante.id)!;
+      const cMandante = classificacao[mandante.grupo]?.find(c => c.selecaoId === mandante.id);
+      const cVisitante = classificacao[visitante.grupo]?.find(c => c.selecaoId === visitante.id);
       
-      const gm = p.golsMandante || 0;
-      const gv = p.golsVisitante || 0;
+      if (!cMandante || !cVisitante) return;
+
+      const gm = p.gols_mandante || 0;
+      const gv = p.gols_visitante || 0;
 
       cMandante.jogosDisputados++;
       cMandante.golsPro += gm;
@@ -132,11 +157,6 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
     set({ classificacaoAtual: classificacao, rankingGeral });
   },
 
-  gerarChavesFase2: () => {
-    // Implementação mantida inalterada
-  },
-  
-  gerarChavesFase3: () => {
-    alert('Fase 3 gerada!');
-  }
+  gerarChavesFase2: () => {},
+  gerarChavesFase3: () => {}
 }));

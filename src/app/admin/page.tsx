@@ -2,7 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useCampeonatoStore } from '@/store/campeonatoStore';
 import { supabase } from '@/lib/supabase';
-import { Lock, LogOut, Plus, Minus, Save, FileText, X } from 'lucide-react';
+import { Lock, LogOut, Plus, Minus, Save, FileText, X, Users, Flag, Calendar } from 'lucide-react';
+import EquipesCRUD from '@/components/admin/EquipesCRUD';
+import JogadoresCRUD from '@/components/admin/JogadoresCRUD';
+import SumulaModal from '@/components/admin/SumulaModal';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -131,6 +134,7 @@ export default function AdminPage() {
 
 // Componente principal do Painel
 function AdminDashboard({ onLogout }: { onLogout: () => void }) {
+  const [activeTab, setActiveTab] = useState<'partidas'|'equipes'|'jogadores'>('partidas');
   const { partidas, selecoes, atualizarPlacar } = useCampeonatoStore();
   const [faseFiltro, setFaseFiltro] = useState<number>(1);
   const [rodadaFiltro, setRodadaFiltro] = useState<number>(1);
@@ -149,7 +153,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   useEffect(() => {
     const iniciais: any = {};
     partidasFiltradas.forEach(p => {
-      iniciais[p.id] = { gm: p.golsMandante || 0, gv: p.golsVisitante || 0, status: p.status };
+      iniciais[p.id] = { gm: p.gols_mandante || 0, gv: p.gols_visitante || 0, status: p.status };
     });
     setPlacaresAtuais(iniciais);
   }, [partidasFiltradas]);
@@ -177,7 +181,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     
     if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
       // Dispara update real no banco
-      await supabase.from('partidas').update({ golsMandante: gm, golsVisitante: gv, status }).eq('id', id);
+      await supabase.from('partidas').update({ gols_mandante: gm, gols_visitante: gv, status }).eq('id', id);
     }
     
     // Atualiza a Store (o que ativa a reatividade do Front no protótipo)
@@ -203,7 +207,24 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </button>
       </header>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 p-1 bg-slate-900 rounded-xl border border-slate-800">
+        <button onClick={() => setActiveTab('partidas')} className={`flex-1 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === 'partidas' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+          <Calendar size={16} /> Partidas
+        </button>
+        <button onClick={() => setActiveTab('equipes')} className={`flex-1 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === 'equipes' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+          <Flag size={16} /> Equipes
+        </button>
+        <button onClick={() => setActiveTab('jogadores')} className={`flex-1 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === 'jogadores' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+          <Users size={16} /> Jogadores
+        </button>
+      </div>
+
+      {activeTab === 'equipes' && <EquipesCRUD />}
+      {activeTab === 'jogadores' && <JogadoresCRUD />}
+      
+      {activeTab === 'partidas' && (
+        <>
+          <div className="flex gap-2 mb-6">
         <select 
           value={faseFiltro} onChange={(e) => setFaseFiltro(Number(e.target.value))}
           className="flex-1 bg-slate-900 border border-slate-800 text-white rounded-lg px-3 py-3 text-sm focus:border-emerald-500 outline-none"
@@ -221,8 +242,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
       <div className="space-y-4">
         {partidasFiltradas.map(jogo => {
-          const mandante = selecoes.find(s => s.id === jogo.selecaoMandanteId)!;
-          const visitante = selecoes.find(s => s.id === jogo.selecaoVisitanteId)!;
+          const mandante = selecoes.find(s => s.id === jogo.mandante_id)!;
+          const visitante = selecoes.find(s => s.id === jogo.visitante_id)!;
           const estadoCard = placaresAtuais[jogo.id];
           if (!estadoCard) return null;
 
@@ -295,51 +316,9 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
       {/* Modal de Súmula */}
       {modalOpen && modalPartida && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-slate-950 p-4 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="text-white font-bold flex items-center gap-2"><FileText size={18} className="text-emerald-500"/> Registro de Gols</h3>
-              <button onClick={() => setModalOpen(false)} className="text-slate-400 hover:text-white"><X size={20}/></button>
-            </div>
-            
-            <div className="p-4 flex-1 overflow-y-auto">
-              <div className="text-center text-sm text-slate-400 mb-6 border-b border-slate-800 pb-4">
-                Partida ID: <span className="font-mono text-slate-200">{modalPartida.id}</span>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs text-slate-500 font-bold uppercase mb-1 block">Autor do Gol</label>
-                  <input type="text" placeholder="Nome do jogador" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-slate-500 font-bold uppercase mb-1 block">Equipe</label>
-                    <select className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500">
-                      <option>Mandante</option>
-                      <option>Visitante</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-500 font-bold uppercase mb-1 block">Minuto</label>
-                    <input type="number" placeholder="Ex: 45'" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500" />
-                  </div>
-                </div>
-                
-                <button className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 mt-4 border border-slate-700">
-                  <Plus size={18} /> Adicionar Gol à Súmula
-                </button>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-slate-800">
-                <h4 className="text-xs text-slate-500 font-bold uppercase mb-3">Eventos Registrados</h4>
-                <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 text-center text-slate-500 text-sm">
-                  Nenhum evento registrado nesta partida.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SumulaModal partida={modalPartida} onClose={() => setModalOpen(false)} />
+      )}
+        </>
       )}
     </div>
   );

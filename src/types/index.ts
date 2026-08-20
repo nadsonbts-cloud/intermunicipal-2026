@@ -7,15 +7,13 @@ export interface Selecao {
 
 export interface Partida {
   id: string;
-  selecaoMandanteId: string;
-  selecaoVisitanteId: string;
-  golsMandante: number | null;
-  golsVisitante: number | null;
-  penaltisMandante?: number | null;
-  penaltisVisitante?: number | null;
+  mandante_id: string;
+  visitante_id: string;
+  gols_mandante: number | null;
+  gols_visitante: number | null;
   status: 'AGENDADO' | 'AO_VIVO' | 'FINALIZADO';
   fase: number; // 1 = Primeira fase, 2 = Segunda Fase, etc.
-  jogoDeIdaOuVolta: 1 | 2; // 1 para Ida, 2 para Volta
+  jogo_ida_volta: 1 | 2; // 1 para Ida, 2 para Volta
   rodada: number;
   data: string;
   cidade: string;

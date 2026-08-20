@@ -12,8 +12,8 @@ export default function SimuladorPage() {
 
   if (!montado) return null;
 
-  const jogosFase2Ida = partidas.filter(p => p.fase === 2 && p.jogoDeIdaOuVolta === 1);
-  const jogosFase2Volta = partidas.filter(p => p.fase === 2 && p.jogoDeIdaOuVolta === 2);
+  const jogosFase2Ida = partidas.filter(p => p.fase === 2 && p.jogo_ida_volta === 1);
+  const jogosFase2Volta = partidas.filter(p => p.fase === 2 && p.jogo_ida_volta === 2);
 
   const handlePlacarBlur = (id: string, gm: string, gv: string) => {
     if (gm !== '' && gv !== '') {
@@ -45,12 +45,12 @@ export default function SimuladorPage() {
         <div className="space-y-6">
           {jogosFase2Ida.map((ida, idx) => {
             const volta = jogosFase2Volta[idx];
-            const mandanteIda = selecoes.find(s => s.id === ida.selecaoMandanteId)!;
-            const visitanteIda = selecoes.find(s => s.id === ida.selecaoVisitanteId)!;
+            const mandanteIda = selecoes.find(s => s.id === ida.mandante_id)!;
+            const visitanteIda = selecoes.find(s => s.id === ida.visitante_id)!;
             
             // Calculo de agregado
-            const gmIda = ida.golsMandante || 0; const gvIda = ida.golsVisitante || 0;
-            const gmVolta = volta?.golsMandante || 0; const gvVolta = volta?.golsVisitante || 0;
+            const gmIda = ida.gols_mandante || 0; const gvIda = ida.gols_visitante || 0;
+            const gmVolta = volta?.gols_mandante || 0; const gvVolta = volta?.gols_visitante || 0;
             
             // O visitante da ida é o mandante da volta
             const totalMandanteIda = gmIda + gvVolta;
@@ -73,13 +73,13 @@ export default function SimuladorPage() {
                     <span className="text-xs text-slate-500 w-12">Ida</span>
                     <span className="text-slate-300 font-medium text-right flex-1">{mandanteIda.nome}</span>
                     <input 
-                      type="number" id={`ida-m-${ida.id}`} defaultValue={ida.golsMandante ?? ''}
+                      type="number" id={`ida-m-${ida.id}`} defaultValue={ida.gols_mandante ?? ''}
                       onBlur={(e) => handlePlacarBlur(ida.id, e.target.value, (document.getElementById(`ida-v-${ida.id}`) as HTMLInputElement).value)}
                       className="w-12 h-10 bg-slate-950 border border-slate-700 rounded text-center text-white font-mono text-lg focus:border-emerald-500"
                     />
                     <span className="text-slate-600">x</span>
                     <input 
-                      type="number" id={`ida-v-${ida.id}`} defaultValue={ida.golsVisitante ?? ''}
+                      type="number" id={`ida-v-${ida.id}`} defaultValue={ida.gols_visitante ?? ''}
                       onBlur={(e) => handlePlacarBlur(ida.id, (document.getElementById(`ida-m-${ida.id}`) as HTMLInputElement).value, e.target.value)}
                       className="w-12 h-10 bg-slate-950 border border-slate-700 rounded text-center text-white font-mono text-lg focus:border-emerald-500"
                     />
@@ -92,13 +92,13 @@ export default function SimuladorPage() {
                       <span className="text-xs text-slate-500 w-12">Volta</span>
                       <span className="text-slate-300 font-medium text-right flex-1">{visitanteIda.nome}</span>
                       <input 
-                        type="number" id={`vol-m-${volta.id}`} defaultValue={volta.golsMandante ?? ''}
+                        type="number" id={`vol-m-${volta.id}`} defaultValue={volta.gols_mandante ?? ''}
                         onBlur={(e) => handlePlacarBlur(volta.id, e.target.value, (document.getElementById(`vol-v-${volta.id}`) as HTMLInputElement).value)}
                         className="w-12 h-10 bg-slate-950 border border-slate-700 rounded text-center text-white font-mono text-lg focus:border-emerald-500"
                       />
                       <span className="text-slate-600">x</span>
                       <input 
-                        type="number" id={`vol-v-${volta.id}`} defaultValue={volta.golsVisitante ?? ''}
+                        type="number" id={`vol-v-${volta.id}`} defaultValue={volta.gols_visitante ?? ''}
                         onBlur={(e) => handlePlacarBlur(volta.id, (document.getElementById(`vol-m-${volta.id}`) as HTMLInputElement).value, e.target.value)}
                         className="w-12 h-10 bg-slate-950 border border-slate-700 rounded text-center text-white font-mono text-lg focus:border-emerald-500"
                       />

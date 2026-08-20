@@ -3,8 +3,11 @@ import { Trophy, CalendarDays, BarChart3, Users, PlayCircle, Lock } from 'lucide
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 h-screen fixed left-0 top-0 flex flex-col">
-      <div className="p-6">
+    <aside className="bg-slate-900 border-slate-800 flex z-50
+      fixed bottom-0 left-0 w-full h-16 border-t flex-row justify-around items-center px-2
+      lg:w-64 lg:h-screen lg:border-r lg:border-t-0 lg:flex-col lg:justify-start lg:top-0 lg:px-0">
+      
+      <div className="hidden lg:block p-6">
         <h1 className="text-2xl font-bold text-emerald-500 flex items-center gap-2">
           <Trophy size={28} />
           Intermunicipal
@@ -12,33 +15,33 @@ export default function Sidebar() {
         <p className="text-slate-400 text-sm mt-1">2026 - Edição Oficial</p>
       </div>
 
-      <nav className="flex-1 px-4 mt-6 space-y-2">
-        <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-500/10 text-emerald-400 font-medium">
+      <nav className="flex-1 flex flex-row lg:flex-col lg:px-4 lg:mt-6 gap-2 w-full justify-around lg:justify-start">
+        <Link href="/" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-3 px-2 lg:px-4 py-2 lg:py-3 rounded-lg text-emerald-400 hover:bg-slate-800 transition-colors">
           <PlayCircle size={20} />
-          Jogos ao Vivo
+          <span className="text-[10px] lg:text-base font-medium">Jogos</span>
         </Link>
-        <Link href="/classificacao" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+        <Link href="/classificacao" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-3 px-2 lg:px-4 py-2 lg:py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
           <BarChart3 size={20} />
-          Classificação
+          <span className="text-[10px] lg:text-base font-medium">Tabela</span>
         </Link>
-        <Link href="/simulador" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+        <Link href="/simulador" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-3 px-2 lg:px-4 py-2 lg:py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
           <CalendarDays size={20} />
-          Simulador (Mata-Mata)
+          <span className="text-[10px] lg:text-base font-medium">Simular</span>
         </Link>
-        <Link href="/artilharia" className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+        <Link href="/artilharia" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-3 px-2 lg:px-4 py-2 lg:py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
           <Users size={20} />
-          Artilharia
+          <span className="text-[10px] lg:text-base font-medium">Gols</span>
         </Link>
       </nav>
 
-      <div className="px-4 mb-4">
+      <div className="hidden lg:block px-4 mb-4 w-full">
         <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-lg border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white hover:border-slate-600 transition-all">
           <Lock size={18} />
           <span className="text-sm font-bold">Painel Admin</span>
         </Link>
       </div>
 
-      <div className="p-6 border-t border-slate-800">
+      <div className="hidden lg:block p-6 border-t border-slate-800 w-full">
         <div className="bg-slate-800 rounded-lg p-4 text-center">
           <p className="text-xs text-slate-400 uppercase font-semibold">Realização</p>
           <p className="text-sm font-bold text-white mt-1">FBF</p>

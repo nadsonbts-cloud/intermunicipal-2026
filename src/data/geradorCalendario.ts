@@ -1,5 +1,4 @@
 import { Partida, Selecao } from '../types';
-import { selecoesMock } from './mock';
 import { v4 as uuidv4 } from 'uuid'; // need to install uuid, wait, no, I'll use a simple id generator
 
 const geradorId = () => Math.random().toString(36).substr(2, 9);
@@ -91,13 +90,13 @@ const criarPartida = (mandante: Selecao, visitante: Selecao, rodada: number, dat
 
   return {
     id: `MATCH_${geradorId()}`,
-    selecaoMandanteId: mandante.id,
-    selecaoVisitanteId: visitante.id,
-    golsMandante: null,
-    golsVisitante: null,
+    mandante_id: mandante.id,
+    visitante_id: visitante.id,
+    gols_mandante: null,
+    gols_visitante: null,
     status: 'AGENDADO',
     fase: 1,
-    jogoDeIdaOuVolta: rodada <= 3 ? 1 : 2,
+    jogo_ida_volta: rodada <= 3 ? 1 : 2,
     rodada,
     data,
     cidade: cidadeMandante,
@@ -105,5 +104,4 @@ const criarPartida = (mandante: Selecao, visitante: Selecao, rodada: number, dat
   };
 };
 
-// Gerar as 174 partidas da primeira fase
-export const calendarioInicialFase1 = gerarCalendarioFase1(selecoesMock);
+

@@ -25,7 +25,7 @@ export default function Home() {
   
   if (grupoFiltro !== 'Todos') {
     partidasFiltradas = partidasFiltradas.filter(p => {
-      const mandante = selecoes.find(s => s.id === p.selecaoMandanteId);
+      const mandante = selecoes.find(s => s.id === p.mandante_id);
       return mandante?.grupo === grupoFiltro;
     });
   }
@@ -70,8 +70,8 @@ export default function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {partidasFiltradas.map((jogo) => {
-          const mandante = selecoes.find(s => s.id === jogo.selecaoMandanteId)!;
-          const visitante = selecoes.find(s => s.id === jogo.selecaoVisitanteId)!;
+          const mandante = selecoes.find(s => s.id === jogo.mandante_id)!;
+          const visitante = selecoes.find(s => s.id === jogo.visitante_id)!;
 
           return (
             <div key={jogo.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg shadow-black/20 flex flex-col justify-between">
@@ -99,7 +99,7 @@ export default function Home() {
                       type="number" 
                       min="0"
                       className="w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-xl font-bold focus:border-emerald-500 focus:outline-none"
-                      defaultValue={jogo.golsMandante ?? ''}
+                      defaultValue={jogo.gols_mandante ?? ''}
                       onBlur={(e) => {
                         if(e.target.value !== '') {
                            const gv = document.getElementById(`gv-${jogo.id}`) as HTMLInputElement;
@@ -113,7 +113,7 @@ export default function Home() {
                       type="number" 
                       min="0"
                       className="w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-xl font-bold focus:border-emerald-500 focus:outline-none"
-                      defaultValue={jogo.golsVisitante ?? ''}
+                      defaultValue={jogo.gols_visitante ?? ''}
                       onBlur={(e) => {
                         if(e.target.value !== '') {
                            const gm = document.getElementById(`gm-${jogo.id}`) as HTMLInputElement;

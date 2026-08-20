@@ -14,9 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className="antialiased flex min-h-screen">
+      <body className="antialiased flex min-h-screen bg-[#0f172a] overflow-x-hidden w-full">
         <Sidebar />
-        <main className="flex-1 ml-64 p-8">
+        <main className="flex-1 lg:ml-64 w-full p-4 pb-20 lg:pb-8 md:p-8 min-h-screen overflow-x-hidden">
           {children}
         </main>
       </body>
