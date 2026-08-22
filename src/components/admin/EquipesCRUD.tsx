@@ -6,6 +6,7 @@ interface Equipe {
   id: string;
   nome: string;
   grupo: string;
+  escudoUrl?: string;
 }
 
 export default function EquipesCRUD() {
@@ -27,7 +28,7 @@ export default function EquipesCRUD() {
   };
 
   const abrirNovo = () => {
-    setFormData({ nome: '', grupo: 'GR-01' });
+    setFormData({ nome: '', grupo: 'GR-01', escudoUrl: '' });
     setModalOpen(true);
   };
 
@@ -43,10 +44,10 @@ export default function EquipesCRUD() {
     try {
       if (formData.id) {
         // Atualizar
-        await supabase.from('equipes').update({ nome: formData.nome, grupo: formData.grupo }).eq('id', formData.id);
+        await supabase.from('equipes').update({ nome: formData.nome, grupo: formData.grupo, escudoUrl: formData.escudoUrl }).eq('id', formData.id);
       } else {
         // Inserir
-        await supabase.from('equipes').insert({ nome: formData.nome, grupo: formData.grupo });
+        await supabase.from('equipes').insert({ nome: formData.nome, grupo: formData.grupo, escudoUrl: formData.escudoUrl });
       }
       setModalOpen(false);
       carregarEquipes();
@@ -79,6 +80,7 @@ export default function EquipesCRUD() {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-slate-400 bg-slate-950/50 uppercase border-b border-slate-800">
               <tr>
+                <th className="px-4 py-3">Escudo</th>
                 <th className="px-4 py-3">Nome</th>
                 <th className="px-4 py-3">Grupo</th>
                 <th className="px-4 py-3 text-right">Ações</th>
@@ -87,6 +89,15 @@ export default function EquipesCRUD() {
             <tbody>
               {equipes.map(eq => (
                 <tr key={eq.id} className="border-b border-slate-800/50">
+                  <td className="px-4 py-3">
+                    {eq.escudoUrl ? (
+                      <img src={eq.escudoUrl} alt={eq.nome} className="w-8 h-8 object-contain" />
+                    ) : (
+                      <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500">
+                        {eq.nome.substring(0,2).toUpperCase()}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-3 font-bold text-slate-200">{eq.nome}</td>
                   <td className="px-4 py-3 text-slate-400">{eq.grupo}</td>
                   <td className="px-4 py-3 flex justify-end gap-2">
@@ -124,6 +135,16 @@ export default function EquipesCRUD() {
                   type="text" 
                   value={formData.grupo || ''}
                   onChange={e => setFormData({...formData, grupo: e.target.value})}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:border-emerald-500" 
+                />
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 font-bold uppercase mb-1 block">URL do Escudo (Link da Imagem)</label>
+                <input 
+                  type="url" 
+                  placeholder="https://exemplo.com/escudo.png"
+                  value={formData.escudoUrl || ''}
+                  onChange={e => setFormData({...formData, escudoUrl: e.target.value})}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:border-emerald-500" 
                 />
               </div>

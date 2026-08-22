@@ -88,9 +88,13 @@ export default function Home() {
               <div className="p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
                   <div className="text-center flex-1 w-24">
-                    <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
-                      {mandante.nome.substring(0, 3).toUpperCase()}
-                    </div>
+                    {mandante.escudoUrl ? (
+                      <img src={mandante.escudoUrl} alt={mandante.nome} className="w-12 h-12 mx-auto mb-2 object-contain" />
+                    ) : (
+                      <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
+                        {mandante.nome.substring(0, 3).toUpperCase()}
+                      </div>
+                    )}
                     <p className="text-sm font-semibold text-slate-200 truncate" title={mandante.nome}>{mandante.nome}</p>
                   </div>
                   
@@ -125,9 +129,13 @@ export default function Home() {
                   </div>
 
                   <div className="text-center flex-1 w-24">
-                    <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
-                      {visitante.nome.substring(0, 3).toUpperCase()}
-                    </div>
+                    {visitante.escudoUrl ? (
+                      <img src={visitante.escudoUrl} alt={visitante.nome} className="w-12 h-12 mx-auto mb-2 object-contain" />
+                    ) : (
+                      <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
+                        {visitante.nome.substring(0, 3).toUpperCase()}
+                      </div>
+                    )}
                     <p className="text-sm font-semibold text-slate-200 truncate" title={visitante.nome}>{visitante.nome}</p>
                   </div>
                 </div>

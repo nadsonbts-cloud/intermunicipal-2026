@@ -13,6 +13,7 @@ interface CampeonatoState {
   
   inicializarBanco: () => Promise<void>;
   atualizarPlacar: (partidaId: string, gols_mandante: number, gols_visitante: number, status: 'AGENDADO'|'AO_VIVO'|'FINALIZADO') => void;
+  atualizarMetadadosPartida: (partidaId: string, data: string, estadio: string, cidade: string) => void;
   recalcularClassificacao: () => void;
   gerarChavesFase2: () => void;
   gerarChavesFase3: () => void;
@@ -95,6 +96,15 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
       return { partidas: novasPartidas };
     });
     get().recalcularClassificacao();
+  },
+
+  atualizarMetadadosPartida: (partidaId, data, estadio, cidade) => {
+    set(state => {
+      const novasPartidas = state.partidas.map(p => 
+        p.id === partidaId ? { ...p, data, estadio, cidade } : p
+      );
+      return { partidas: novasPartidas };
+    });
   },
 
   recalcularClassificacao: () => {

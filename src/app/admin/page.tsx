@@ -140,7 +140,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [rodadaFiltro, setRodadaFiltro] = useState<number>(1);
   
   // Estado local para controle dos placares antes de salvar
-  const [placaresAtuais, setPlacaresAtuais] = useState<Record<string, {gm: number, gv: number, status: any}>>({});
+  const [placaresAtuais, setPlacaresAtuais] = useState<Record<string, {gm: number, gv: number, status: any, data: string, estadio: string, cidade: string}>>({});
   const [salvando, setSalvando] = useState<string | null>(null);
 
   // Modal State
@@ -149,11 +149,16 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   const partidasFiltradas = partidas.filter(p => p.fase === faseFiltro && p.rodada === rodadaFiltro);
 
+  const { atualizarMetadadosPartida } = useCampeonatoStore();
+
   // Inicializa o estado local com os valores do global
   useEffect(() => {
     const iniciais: any = {};
     partidasFiltradas.forEach(p => {
-      iniciais[p.id] = { gm: p.gols_mandante || 0, gv: p.gols_visitante || 0, status: p.status };
+      iniciais[p.id] = { 
+        gm: p.gols_mandante || 0, gv: p.gols_visitante || 0, status: p.status,
+        data: p.data || '', estadio: p.estadio || '', cidade: p.cidade || ''
+      };
     });
     setPlacaresAtuais(iniciais);
   }, [partidasFiltradas]);
@@ -178,6 +183,26 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     
     // 3. Atualiza store global
     atualizarPlacar(id, gm, gv, estadoAtual.status);
+  };
+
+  const changeMetadata = async (id: string, field: 'data' | 'estadio' | 'cidade', value: string) => {
+    setPlacaresAtuais(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value }
+    }));
+    
+    // Auto-salvar no DB ao sair do campo
+    const estadoAtual = placaresAtuais[id];
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      await supabase.from('partidas').update({ [field]: value }).eq('id', id);
+    }
+    
+    // Atualizar no store
+    const novoData = field === 'data' ? value : estadoAtual.data;
+    const novoEstadio = field === 'estadio' ? value : estadoAtual.estadio;
+    const novaCidade = field === 'cidade' ? value : estadoAtual.cidade;
+    
+    atualizarMetadadosPartida(id, novoData, novoEstadio, novaCidade);
   };
 
   const changeStatus = async (id: string, status: any) => {
@@ -319,10 +344,48 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                     {salvoComSucesso ? 'Salvo!' : 'Atualizar'}
                   </button>
                 </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-slate-500 uppercase font-bold px-1">Data e Hora</label>
+                      <input 
+                        type="text" 
+                        placeholder="Ex: 15:00 21/07"
+                        value={estadoCard.data}
+                        onChange={(e) => setPlacaresAtuais(p => ({...p, [jogo.id]: {...p[jogo.id], data: e.target.value}}))}
+                        onBlur={(e) => changeMetadata(jogo.id, 'data', e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 uppercase font-bold px-1">Cidade</label>
+                      <input 
+                        type="text" 
+                        placeholder="Ex: Conceição do Coité"
+                        value={estadoCard.cidade}
+                        onChange={(e) => setPlacaresAtuais(p => ({...p, [jogo.id]: {...p[jogo.id], cidade: e.target.value}}))}
+                        onBlur={(e) => changeMetadata(jogo.id, 'cidade', e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 uppercase font-bold px-1">Estádio</label>
+                    <input 
+                      type="text" 
+                      placeholder="Ex: Estádio Municipal"
+                      value={estadoCard.estadio}
+                      onChange={(e) => setPlacaresAtuais(p => ({...p, [jogo.id]: {...p[jogo.id], estadio: e.target.value}}))}
+                      onBlur={(e) => changeMetadata(jogo.id, 'estadio', e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
                 
                 <button 
                   onClick={() => abrirSumula(jogo)}
-                  className="w-full mt-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg py-2 flex items-center justify-center gap-2 text-xs font-bold border border-slate-700"
+                  className="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg py-2 flex items-center justify-center gap-2 text-xs font-bold border border-slate-700"
                 >
                   <FileText size={14} />
                   Súmula e Eventos
