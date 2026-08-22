@@ -5,6 +5,13 @@ import Sidebar from '@/components/Sidebar';
 export const metadata: Metadata = {
   title: 'Campeonato Intermunicipal 2026',
   description: 'Aplicativo oficial de acompanhamento e simulação do Campeonato Intermunicipal de Futebol Amador da Bahia.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    title: 'Inter2026',
+    statusBarStyle: 'black-translucent',
+    capable: true,
+  },
+  themeColor: '#0f172a',
 };
 
 export default function RootLayout({
