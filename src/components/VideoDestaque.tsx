@@ -19,7 +19,7 @@ export default function VideoDestaque() {
   if (!videoId) return null;
 
   return (
-    <div className="w-full mb-8 rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900 flex flex-col">
+    <div className="w-full rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900 flex flex-col">
       <div className="bg-red-600/10 px-4 py-2 border-b border-red-900/30 flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-red-500"></span>
         <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Em Destaque</span>
