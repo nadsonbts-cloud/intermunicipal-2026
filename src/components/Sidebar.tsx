@@ -44,7 +44,9 @@ export default function Sidebar() {
       <div className="hidden lg:block p-6 border-t border-slate-800 w-full">
         <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-slate-700/50">
           <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider mb-2">Desenvolvido por</p>
-          <img src="/loucos_da_bola.jpg" alt="Loucos da Bola" className="w-full max-w-[120px] mx-auto rounded-lg shadow-sm" />
+          <a href="https://www.instagram.com/loucos_dabolaofc/" target="_blank" rel="noopener noreferrer" className="block hover:opacity-80 transition-opacity">
+            <img src="/loucos_da_bola.jpg" alt="Loucos da Bola" className="w-full max-w-[120px] mx-auto rounded-lg shadow-sm" />
+          </a>
         </div>
       </div>
     </aside>
