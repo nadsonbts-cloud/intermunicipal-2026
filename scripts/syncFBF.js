@@ -1,5 +1,5 @@
 require('dotenv').config({ path: '.env.local' });
-const fs = require('fs');
+const axios = require('axios');
 const cheerio = require('cheerio');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -8,95 +8,101 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const content = fs.readFileSync('C:/Users/nadso/.gemini/antigravity/brain/6ba3f925-3a7d-442d-9dfe-ea1afa8e94ad/.system_generated/steps/545/content.md', 'utf8');
-  const $ = cheerio.load(content);
+  console.log("Baixando dados oficiais da FBF...");
+  const response = await axios.get('https://www.fbf.org.br/competicoes/8', {
+    headers: {
+       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+  });
+  const html = response.data;
+  const $ = cheerio.load(html);
 
-  const groups = [];
+  console.log("Extraindo Equipes (Classificação)...");
+  const fbfTeams = [];
 
   $('.section-title-table').each((i, el) => {
-    const groupName = $(el).find('h4').text().trim();
     const table = $(el).next('table');
-    const teams = [];
-
     table.find('tbody tr').each((j, tr) => {
       const tds = $(tr).find('td');
       const name = $(tds[0]).find('.team-meta__place').text().trim();
-      const points = parseInt($(tds[1]).text().trim(), 10);
-      const played = parseInt($(tds[2]).text().trim(), 10);
-      const wins = parseInt($(tds[3]).text().trim(), 10);
-      const draws = parseInt($(tds[4]).text().trim(), 10);
-      const losses = parseInt($(tds[5]).text().trim(), 10);
-      const gf = parseInt($(tds[6]).text().trim(), 10);
-      const ga = parseInt($(tds[7]).text().trim(), 10);
+      const imgPath = $(tds[0]).find('img').attr('src');
+      const escudoUrl = imgPath ? 'https://www.fbf.org.br' + imgPath : null;
 
-      teams.push({ name, points, played, wins, draws, losses, gf, ga });
+      fbfTeams.push({ name, escudoUrl });
     });
-
-    groups.push({ groupName, teams });
   });
 
-  console.log(`Found ${groups.length} groups.`);
+  console.log(`Extraídas ${fbfTeams.length} equipes do site.`);
 
-  // Puxar as equipes e partidas do banco
+  // 1. Atualizar escudos no BD
   const { data: dbEquipes, error: e1 } = await supabase.from('equipes').select('id, nome, grupo');
   if(e1) console.error(e1);
-  const { data: dbPartidas, error: e2 } = await supabase.from('partidas').select('id, mandante_id, visitante_id, rodada').eq('fase', 1).eq('rodada', 1);
-  if(e2) console.error(e2);
 
-  let matchUpdates = [];
-
-  for (const group of groups) {
-    if (group.teams.every(t => t.played === 0)) continue; // não teve jogo
-
-    // Precisamos deduzir quem jogou com quem
-    // Procuramos pelas partidas no BD
-    const groupEquipes = dbEquipes.filter(e => e.grupo === 'GR-' + group.groupName.replace('Grupo ', '').padStart(2, '0'));
-    
-    // Tenta casar as equipes da FBF com as do BD
-    for (const team of group.teams) {
-       // match loosely
-       const dbTeam = groupEquipes.find(e => e.nome.toLowerCase().includes(team.name.toLowerCase()) || team.name.toLowerCase().includes(e.nome.toLowerCase()));
-       if(dbTeam) team.dbId = dbTeam.id;
+  let equipesAtualizadas = 0;
+  for (const dbTeam of dbEquipes) {
+    const fbfMatch = fbfTeams.find(t => t.name.toLowerCase() === dbTeam.nome.toLowerCase() || dbTeam.nome.toLowerCase().includes(t.name.toLowerCase()));
+    if (fbfMatch && fbfMatch.escudoUrl) {
+      await supabase.from('equipes').update({ escudoUrl: fbfMatch.escudoUrl }).eq('id', dbTeam.id);
+      equipesAtualizadas++;
     }
+  }
+  console.log(`✅ ${equipesAtualizadas} escudos de equipes atualizados!`);
 
-    const groupMatches = dbPartidas.filter(p => groupEquipes.some(e => e.id === p.mandante_id));
+  // 2. Extrair Partidas e Datas
+  console.log("Extraindo confrontos e datas...");
+  const scrapedMatches = [];
+  $('.data-hora-card-jogo').each((i, el) => {
+    const htmlData = $(el).find('span').html() || '';
+    const parts = htmlData.split('<br>');
+    if (parts.length >= 2) {
+      const city = parts[0].trim();
+      const dateTime = parts[1].trim();
 
-    // Deduzir os placares. Cada partida tem um mandante e visitante.
-    for (const match of groupMatches) {
-       const mandante = group.teams.find(t => t.dbId === match.mandante_id);
-       const visitante = group.teams.find(t => t.dbId === match.visitante_id);
+      const confronto = $(el).parent().find('.flex-confronto-card');
+      const spans = confronto.find('.time-confronto');
+      if (spans.length >= 2) {
+        const mandanteAcr = $(spans[0]).text().trim().toLowerCase();
+        const visitanteAcr = $(spans[1]).text().trim().toLowerCase();
+        scrapedMatches.push({ city, dateTime, mandanteAcr, visitanteAcr });
+      }
+    }
+  });
 
-       if (mandante && visitante) {
-          // Se Mandante fez X gols e tomou Y gols, e Visitante fez Y gols e tomou X gols...
-          if (mandante.gf === visitante.ga && mandante.ga === visitante.gf) {
-             matchUpdates.push({
-               id: match.id,
-               gols_mandante: mandante.gf,
-               gols_visitante: visitante.gf,
-               status: 'FINALIZADO'
-             });
-             console.log(`${mandante.name} ${mandante.gf} x ${visitante.gf} ${visitante.name}`);
-          } else {
-             // Caso não seja um casamento perfeito (ex: times jogaram mais de 1 jogo?), vamos usar o GP
-             console.log(`Mismatch ou Múltiplos Jogos para: ${mandante.name} x ${visitante.name}`);
-          }
-       }
+  console.log(`Extraídos ${scrapedMatches.length} cartões de confronto.`);
+
+  // 3. Atualizar partidas no BD
+  const { data: dbPartidas, error: e2 } = await supabase.from('partidas').select('id, mandante_id, visitante_id').eq('fase', 1);
+  if (e2) console.error(e2);
+
+  let partidasAtualizadas = 0;
+  for (const match of dbPartidas) {
+    const mandanteDb = dbEquipes.find(e => e.id === match.mandante_id);
+    const visitanteDb = dbEquipes.find(e => e.id === match.visitante_id);
+
+    if (mandanteDb && visitanteDb) {
+      // Find the scraped match that most likely corresponds to this game
+      // Checking if the acronym is contained in the real name (or vice versa)
+      const scraped = scrapedMatches.find(sm => {
+        // Tenta achar iniciais ou partes do nome
+        const mOk = mandanteDb.nome.toLowerCase().startsWith(sm.mandanteAcr.substring(0,3)) || mandanteDb.nome.toLowerCase().includes(sm.mandanteAcr);
+        const vOk = visitanteDb.nome.toLowerCase().startsWith(sm.visitanteAcr.substring(0,3)) || visitanteDb.nome.toLowerCase().includes(sm.visitanteAcr);
+        return mOk && vOk;
+      });
+
+      if (scraped) {
+        await supabase.from('partidas').update({
+          data: scraped.dateTime,
+          cidade: scraped.city
+        }).eq('id', match.id);
+        partidasAtualizadas++;
+      } else {
+         console.log(`⚠️ Não foi possível encontrar a data exata para: ${mandanteDb.nome} x ${visitanteDb.nome}`);
+      }
     }
   }
 
-  console.log(`Prestes a atualizar ${matchUpdates.length} partidas no Supabase...`);
-  
-  for (const update of matchUpdates) {
-     const { error } = await supabase.from('partidas').update({
-        gols_mandante: update.gols_mandante,
-        gols_visitante: update.gols_visitante,
-        status: update.status
-     }).eq('id', update.id);
-     
-     if(error) console.error("Erro ao atualizar", update.id, error);
-  }
-
-  console.log("Sucesso! Banco sincronizado com a FBF.");
+  console.log(`✅ ${partidasAtualizadas} partidas atualizadas com Data, Hora e Cidade!`);
+  console.log("Sincronização FBF concluída com sucesso.");
 }
 
 run().catch(console.error);
