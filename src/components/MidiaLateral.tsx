@@ -10,7 +10,7 @@ export default function MidiaLateral() {
   if (!temBanner && !temVideo) return null;
 
   return (
-    <div className="flex flex-col gap-6 mt-8">
+    <div className="flex flex-col gap-6">
       {temBanner && (
         <div className="w-full rounded-xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900">
           <img 

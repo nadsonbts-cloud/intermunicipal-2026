@@ -37,18 +37,16 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+    <div className="max-w-7xl mx-auto">
       
-      {/* Coluna Principal */}
-      <div className="flex-1">
-        <BannerTopo />
-        
-        <header className="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">Painel de Jogos (Oficial)</h1>
-            <p className="text-slate-400 mt-2">Atualize os placares para recalcular as tabelas em tempo real.</p>
-          </div>
-        
+      <BannerTopo />
+      
+      <header className="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4 mt-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Painel de Jogos (Oficial)</h1>
+          <p className="text-slate-400 mt-2">Atualize os placares para recalcular as tabelas em tempo real.</p>
+        </div>
+      
         <div className="flex flex-wrap gap-2">
           <select 
             value={faseFiltro} onChange={(e) => setFaseFiltro(Number(e.target.value))}
@@ -74,6 +72,10 @@ export default function Home() {
           </select>
         </div>
       </header>
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Coluna Principal (Resultados) */}
+        <div className="flex-1">
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         {partidasFiltradas.map((jogo) => {
@@ -191,8 +193,10 @@ export default function Home() {
       </div>
       
       {/* Coluna Lateral de Publicidade (Desktop e Mobile) */}
-      <div className="w-full lg:w-[300px] shrink-0">
+      <div className="w-full lg:w-[300px] shrink-0 mt-8 lg:mt-0">
          <MidiaLateral />
+      </div>
+      
       </div>
     </div>
   );
