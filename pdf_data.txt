@@ -1,0 +1,58 @@
+01 15/08/26 Sáb 15:00 14 Coaraci 0x0 Itapetinga Coaraci
+02 16/08/26 Dom 15:00 01 Glória 0x1 Rodelas Paulo Afonso
+03 16/08/26 Dom 15:00 01 Tucano 1x1 Paulo Afonso Tucano
+04 16/08/26 Dom 15:00 02 Conde 0x1 Araçás Conde
+05 16/08/26 Dom 15:00 02 Crisópolis 3x0 Rio Real Crisópolis
+06 16/08/26 Dom 15:00 03 Santaluz 1x1 Valente Santaluz
+07 16/08/26 Dom 15:00 03 Conceição do Coité 4x0 Ichu Conceição do Coité
+08 16/08/26 Dom 15:00 04 Serrinha 1x0 Biritinga Serrinha
+09 16/08/26 Dom 15:00 04 Santa Bárbara 1x1 Barrocas Santa Bárbara
+10 16/08/26 Dom 15:00 05 Miguel Calmon 0x1 Capim Grosso Miguel Calmon
+11 16/08/26 Dom 15:00 05 Pé de Serra 0x1 Ipirá Pé de Serra
+12 16/08/26 Dom 15:00 06 Amélia Rodrigues 0x2 Anguera Amélia Rodrigues
+13 16/08/26 Dom 15:00 06 Santanópolis 0x0 Feira de Santana Santanópolis
+14 16/08/26 Dom 15:00 07 Cabaceiras do Paraguaçu 1x1 São Felix Cabaceiras do Paraguaçu
+15 16/08/26 Dom 15:00 07 Cachoeira 1x1 Conceição da Feira Cachoeira
+16 16/08/26 Dom 15:00 08 Alagoinhas 2x1 Catu Alagoinhas
+17 16/08/26 Dom 15:00 08 Pojuca 0x1 Lauro de Freitas Pojuca
+18 16/08/26 Dom 15:00 09 Maragojipe 2x0 Saubara Maragojipe
+19 16/08/26 Dom 15:00 09 São Felipe 0x5 Simões Filho São Felipe
+20 16/08/26 Dom 15:00 10 Brejões 0x1 Santo Antônio de Jesus Brejões
+21 16/08/26 Dom 15:00 10 Itatim 0x2 Castro Alves Itatim
+22 16/08/26 Dom 15:00 11 Jaguaquara 2x0 Irajuba Jaguaquara
+23 16/08/26 Dom 15:00 12 Ilhéus 2x2 Ibirapitanga Ilhéus
+24 16/08/26 Dom 15:00 12 Aurelino Leal 1x0 Itabuna Aurelino Leal
+25 16/08/26 Dom 15:00 13 Vitória da Conquista 1x2 Brumado Vitória da Conquista
+26 16/08/26 Dom 15:00 13 Poções 1x1 Contendas Poções
+27 16/08/26 Dom 15:00 14 Caatiba 1x2 Barro Preto Caatiba
+28 16/08/26 Dom 15:00 15 Teixeira de Freitas 0x3 Itamaraju Itamaraju
+29 16/08/26 Dom 15:00 15 Camacan 0x0 Santa Cruz da Vitória Camacan
+30 23/08/26 Dom 15:00 01 Rodelas x Tucano Rodelas
+31 23/08/26 Dom 15:00 01 Paulo Afonso x Glória Paulo Afonso
+32 23/08/26 Dom 15:00 02 Araçás x Crisópolis Aporá
+33 23/08/26 Dom 15:00 02 Rio Real x Conde Rio Real
+34 23/08/26 Dom 15:00 03 Valente x Conceição do Coité Valente
+35 23/08/26 Dom 15:00 03 Ichu x Santaluz Ichu
+36 23/08/26 Dom 15:00 04 Biritinga x Santa Bárbara Biritinga
+37 23/08/26 Dom 15:00 04 Barrocas x Serrinha Serrinha
+38 23/08/26 Dom 15:00 05 Capim Grosso x Pé de Serra Capim Grosso
+39 23/08/26 Dom 15:00 05 Ipirá x Miguel Calmon Ipirá
+40 23/08/26 Dom 15:00 06 Anguera x Santanópolis Anguera
+41 23/08/26 Dom 15:00 06 Feira de Santana x Amélia Rodrigues S. Gonçalo dos Campos
+42 23/08/26 Dom 15:00 07 São Félix x Cachoeira São Félix
+43 23/08/26 Dom 15:00 07 Conceição da Feira x Cabaceiras de Paraguaçu Conceição da Feira
+44 23/08/26 Dom 15:00 08 Catu x Pojuca Catu
+45 23/08/26 Dom 15:00 08 Lauro de Freitas x Alagoinhas Lauro de Freitas
+46 23/08/26 Dom 15:00 09 Saubara x São Felipe Saubara
+47 23/08/26 Dom 15:00 09 Simões Filho x Maragojipe Simões Filho
+48 23/08/26 Dom 15:00 10 Santo Antônio de Jesus x Itatim Santo Antônio de Jesus
+49 23/08/26 Dom 15:00 10 Castro Alves x Brejões Castro Alves
+50 23/08/26 Dom 15:00 11 Irajuba x Itiruçu Irajuba
+51 23/08/26 Dom 15:00 12 Ibirapitanga x Aurelino Leal Ibirapitanga
+52 23/08/26 Dom 15:00 12 Itabuna x Ilhéus Itajuípe
+53 23/08/26 Dom 15:00 13 Brumado x Poções Brumado
+54 23/08/26 Dom 15:00 13 Contendas x Vitória da Conquista Contendas
+55 23/08/26 Dom 15:00 14 Barro Preto x Coarací Barro Preto
+56 23/08/26 Dom 15:00 14 Itapetinga x Caatiba Itapetinga
+57 23/08/26 Dom 15:00 15 Itamaraju x Camacan Itamaraju
+58 23/08/26 Dom 15:00 15 Santa Cruz da Vitória x Teixeira de Freitas Ibicaraí
