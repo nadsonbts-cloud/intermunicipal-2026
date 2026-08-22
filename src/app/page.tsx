@@ -73,12 +73,33 @@ export default function Home() {
           const mandante = selecoes.find(s => s.id === jogo.mandante_id)!;
           const visitante = selecoes.find(s => s.id === jogo.visitante_id)!;
 
+          // Calcula status dinâmico
+          let statusExibicao = jogo.status;
+          if (jogo.status !== 'FINALIZADO' && jogo.data) {
+             const parts = jogo.data.split(' ');
+             if(parts.length === 2) {
+               const [day, month, year] = parts[0].split('/');
+               const [hour, minute] = parts[1].split(':');
+               const matchDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+               const now = new Date();
+               
+               // Se passou da hora do jogo, e faz menos de 2h30min, é AO VIVO
+               if (now.getTime() >= matchDate.getTime()) {
+                  if (now.getTime() <= matchDate.getTime() + (2.5 * 60 * 60 * 1000)) {
+                     statusExibicao = 'AO_VIVO';
+                  } else {
+                     statusExibicao = 'FINALIZADO'; // Se passou de 2h30, considera finalizado pra não ficar ao vivo eternamente
+                  }
+               }
+             }
+          }
+
           return (
             <div key={jogo.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg shadow-black/20 flex flex-col justify-between">
               <div className="bg-slate-800/50 px-4 py-2 flex justify-between items-center border-b border-slate-800 text-xs font-semibold">
-                <span className={`flex items-center gap-1 ${jogo.status === 'FINALIZADO' ? 'text-slate-400' : 'text-emerald-400'}`}>
-                  {jogo.status === 'AO_VIVO' && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
-                  {jogo.status === 'FINALIZADO' ? 'ENCERRADO' : jogo.status === 'AO_VIVO' ? 'AO VIVO' : 'AGENDADO'}
+                <span className={`flex items-center gap-1 ${statusExibicao === 'FINALIZADO' ? 'text-slate-400' : 'text-emerald-400'}`}>
+                  {statusExibicao === 'AO_VIVO' && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
+                  {statusExibicao === 'FINALIZADO' ? 'ENCERRADO' : statusExibicao === 'AO_VIVO' ? 'AO VIVO' : 'AGENDADO'}
                 </span>
                 <span className="text-slate-400 flex items-center gap-1">
                   <Clock size={12} /> {jogo.data}
