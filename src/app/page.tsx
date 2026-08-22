@@ -75,7 +75,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         {partidasFiltradas.map((jogo) => {
           const mandante = selecoes.find(s => s.id === jogo.mandante_id)!;
           const visitante = selecoes.find(s => s.id === jogo.visitante_id)!;
