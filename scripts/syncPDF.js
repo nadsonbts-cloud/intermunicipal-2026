@@ -22,7 +22,7 @@ async function run() {
   let partidasAtualizadas = 0;
 
   for (const line of lines) {
-    const match = line.match(/^(\d{2})\s+(\d{2}\/\d{2}\/\d{2})\s+(\S+)\s+(\d{2}:\d{2})\s+(\d{2})\s+(.*?)\s+(\dx\d|x)\s+(.*)$/);
+    const match = line.match(/^(\d{2,3})\s+(\d{2}\/\d{2}\/\d{2})\s+(\S+)\s+(\d{2}:\d{2})\s+(\d{2})\s+(.*?)\s+(\dx\d|x)\s+(.*)$/);
     if (!match) continue;
 
     const [ _, idStr, dateStr, day, time, group, mandanteStr, score, visitanteAndCity ] = match;
@@ -32,8 +32,14 @@ async function run() {
     const year = dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2];
     const formattedDateTime = `${dateParts[0]}/${dateParts[1]}/${year} ${time}`;
 
+    let mStr = mandanteStr;
+    mStr = mStr.replace('Cabaceiras de Paraguaçu', 'Cabaceiras do Paraguaçu');
+    mStr = mStr.replace('Santa Cruz das Vitória', 'Santa Cruz da Vitória');
+    mStr = mStr.replace('Coarací', 'Coaraci');
+    mStr = mStr.replace('Brejóes', 'Brejões');
+
     // Find mandante
-    const mandante = dbEquipes.find(e => removeAccents(e.nome).toLowerCase() === removeAccents(mandanteStr).toLowerCase() || removeAccents(e.nome).toLowerCase().includes(removeAccents(mandanteStr).toLowerCase()));
+    const mandante = dbEquipes.find(e => removeAccents(e.nome).toLowerCase() === removeAccents(mStr).toLowerCase() || removeAccents(e.nome).toLowerCase().includes(removeAccents(mStr).toLowerCase()));
     
     if (!mandante) {
        console.log(`❌ Não achei mandante para a linha: ${line}`);
@@ -43,16 +49,22 @@ async function run() {
     // Find visitante
     // The string is "Visitante City"
     // Let's iterate all teams to see which one starts the string
+    let vStr = visitanteAndCity;
+    vStr = vStr.replace('Cabaceiras de Paraguaçu', 'Cabaceiras do Paraguaçu');
+    vStr = vStr.replace('Santa Cruz das Vitória', 'Santa Cruz da Vitória');
+    vStr = vStr.replace('Coarací', 'Coaraci');
+    vStr = vStr.replace('Brejóes', 'Brejões');
+
     let visitante = null;
     let city = '';
     
     // Sort by name length descending so we match the longest possible team name first
     const sortedEquipes = [...dbEquipes].sort((a,b) => b.nome.length - a.nome.length);
     for (const eq of sortedEquipes) {
-      if (removeAccents(visitanteAndCity).toLowerCase().startsWith(removeAccents(eq.nome).toLowerCase())) {
+      if (removeAccents(vStr).toLowerCase().startsWith(removeAccents(eq.nome).toLowerCase())) {
         visitante = eq;
         // City is the remainder
-        city = visitanteAndCity.substring(eq.nome.length).trim();
+        city = vStr.substring(eq.nome.length).trim();
         break;
       }
     }

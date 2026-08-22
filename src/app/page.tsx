@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { Clock, MapPin, Search } from 'lucide-react';
 import { useCampeonatoStore } from '@/store/campeonatoStore';
+import BannerTopo from '@/components/BannerTopo';
+import MidiaLateral from '@/components/MidiaLateral';
 
 export default function Home() {
   const { partidas, selecoes, atualizarPlacar, isCarregandoBanco, inicializarBanco } = useCampeonatoStore();
@@ -35,12 +37,17 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <header className="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Painel de Jogos (Oficial)</h1>
-          <p className="text-slate-400 mt-2">Atualize os placares para recalcular as tabelas em tempo real.</p>
-        </div>
+    <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+      
+      {/* Coluna Principal */}
+      <div className="flex-1">
+        <BannerTopo />
+        
+        <header className="mb-8 flex flex-col md:flex-row justify-between md:items-end gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Painel de Jogos (Oficial)</h1>
+            <p className="text-slate-400 mt-2">Atualize os placares para recalcular as tabelas em tempo real.</p>
+          </div>
         
         <div className="flex flex-wrap gap-2">
           <select 
@@ -180,6 +187,12 @@ export default function Home() {
              <p>Nenhuma partida encontrada para este filtro.</p>
            </div>
         )}
+      </div>
+      </div>
+      
+      {/* Coluna Lateral de Publicidade (Desktop e Mobile) */}
+      <div className="w-full lg:w-[300px] shrink-0">
+         <MidiaLateral />
       </div>
     </div>
   );

@@ -44,3 +44,9 @@ export interface ClassificacaoGrupo {
   jogosDisputados: number;
   aproveitamento?: number; // Para o ranqueamento geral considerando o Grupo 11
 }
+
+export interface ConfiguracoesMidia {
+  banner_topo: string;
+  banner_lateral: string;
+  video_youtube: string;
+}

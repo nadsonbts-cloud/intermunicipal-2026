@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Partida, Selecao, ClassificacaoGrupo } from '../types';
+import { Partida, Selecao, ClassificacaoGrupo, ConfiguracoesMidia } from '../types';
 import { gerarCalendarioFase1 } from '../data/geradorCalendario';
 import { supabase } from '@/lib/supabase';
 import { ordenarClassificacao, calcularAproveitamento } from '../utils/tiebreakers';
@@ -10,10 +10,12 @@ interface CampeonatoState {
   classificacaoAtual: Record<string, ClassificacaoGrupo[]>;
   isCarregandoBanco: boolean;
   rankingGeral: ClassificacaoGrupo[];
+  configuracoesMidia: ConfiguracoesMidia;
   
   inicializarBanco: () => Promise<void>;
   atualizarPlacar: (partidaId: string, gols_mandante: number, gols_visitante: number, status: 'AGENDADO'|'AO_VIVO'|'FINALIZADO') => void;
   atualizarMetadadosPartida: (partidaId: string, data: string, estadio: string, cidade: string) => void;
+  atualizarConfiguracaoMidia: (chave: keyof ConfiguracoesMidia, valor: string) => Promise<void>;
   recalcularClassificacao: () => void;
   gerarChavesFase2: () => void;
   gerarChavesFase3: () => void;
@@ -39,8 +41,27 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
   classificacaoAtual: {},
   isCarregandoBanco: true,
   rankingGeral: [],
+  configuracoesMidia: {
+    banner_topo: '',
+    banner_lateral: '',
+    video_youtube: ''
+  },
 
   inicializarBanco: async () => {
+    // 0. Carregar Configuracoes
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      const { data: configData } = await supabase.from('configuracoes').select('*');
+      if (configData) {
+        const configMap: any = {};
+        configData.forEach(c => configMap[c.id] = c.valor);
+        set({ configuracoesMidia: {
+          banner_topo: configMap['banner_topo'] || '',
+          banner_lateral: configMap['banner_lateral'] || '',
+          video_youtube: configMap['video_youtube'] || ''
+        }});
+      }
+    }
+
     // 1. Carregar Equipes
     const { data: equipesData, error: equipesError } = await supabase.from('equipes').select('*');
     if (equipesError) console.error("Erro ao carregar equipes:", equipesError);
@@ -108,6 +129,15 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
       );
       return { partidas: novasPartidas };
     });
+  },
+
+  atualizarConfiguracaoMidia: async (chave, valor) => {
+    set(state => ({
+      configuracoesMidia: { ...state.configuracoesMidia, [chave]: valor }
+    }));
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      await supabase.from('configuracoes').upsert({ id: chave, valor });
+    }
   },
 
   recalcularClassificacao: () => {

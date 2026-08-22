@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useCampeonatoStore } from '@/store/campeonatoStore';
 import { supabase } from '@/lib/supabase';
-import { Lock, LogOut, Plus, Minus, Save, FileText, X, Users, Flag, Calendar } from 'lucide-react';
+import { Lock, LogOut, Plus, Minus, Save, FileText, X, Users, Flag, Calendar, Image } from 'lucide-react';
 import EquipesCRUD from '@/components/admin/EquipesCRUD';
 import JogadoresCRUD from '@/components/admin/JogadoresCRUD';
 import SumulaModal from '@/components/admin/SumulaModal';
+import MidiaCRUD from '@/components/admin/MidiaCRUD';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -132,9 +133,8 @@ export default function AdminPage() {
   return <AdminDashboard onLogout={handleLogout} />;
 }
 
-// Componente principal do Painel
 function AdminDashboard({ onLogout }: { onLogout: () => void }) {
-  const [activeTab, setActiveTab] = useState<'partidas'|'equipes'|'jogadores'>('partidas');
+  const [activeTab, setActiveTab] = useState<'partidas'|'equipes'|'jogadores'|'midia'>('partidas');
   const { partidas, selecoes, atualizarPlacar } = useCampeonatoStore();
   const [faseFiltro, setFaseFiltro] = useState<number>(1);
   const [rodadaFiltro, setRodadaFiltro] = useState<number>(1);
@@ -251,20 +251,24 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </button>
       </header>
 
-      <div className="flex gap-2 mb-6 p-1 bg-slate-900 rounded-xl border border-slate-800">
-        <button onClick={() => setActiveTab('partidas')} className={`flex-1 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === 'partidas' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+      <div className="flex gap-2 mb-6 p-1 bg-slate-900 rounded-xl border border-slate-800 flex-wrap">
+        <button onClick={() => setActiveTab('partidas')} className={`flex-1 py-2 px-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors min-w-[100px] ${activeTab === 'partidas' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
           <Calendar size={16} /> Partidas
         </button>
-        <button onClick={() => setActiveTab('equipes')} className={`flex-1 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === 'equipes' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+        <button onClick={() => setActiveTab('equipes')} className={`flex-1 py-2 px-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors min-w-[100px] ${activeTab === 'equipes' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
           <Flag size={16} /> Equipes
         </button>
-        <button onClick={() => setActiveTab('jogadores')} className={`flex-1 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors ${activeTab === 'jogadores' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+        <button onClick={() => setActiveTab('jogadores')} className={`flex-1 py-2 px-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors min-w-[100px] ${activeTab === 'jogadores' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
           <Users size={16} /> Jogadores
+        </button>
+        <button onClick={() => setActiveTab('midia')} className={`flex-1 py-2 px-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors min-w-[100px] ${activeTab === 'midia' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+          <Image size={16} /> Mídia
         </button>
       </div>
 
       {activeTab === 'equipes' && <EquipesCRUD />}
       {activeTab === 'jogadores' && <JogadoresCRUD />}
+      {activeTab === 'midia' && <MidiaCRUD />}
       
       {activeTab === 'partidas' && (
         <>
