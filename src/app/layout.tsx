@@ -10,7 +10,10 @@ export const metadata: Metadata = {
     title: 'Inter2026',
     statusBarStyle: 'black-translucent',
     capable: true,
-  },
+  }
+};
+
+export const viewport = {
   themeColor: '#0f172a',
 };
 
