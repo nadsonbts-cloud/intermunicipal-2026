@@ -22,6 +22,21 @@ export default function MidiaCRUD() {
     setTimeout(() => setSalvando(null), 1500);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (value: string) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("A imagem deve ter no máximo 2MB para não sobrecarregar o banco de dados.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setter(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg p-6">
@@ -29,20 +44,28 @@ export default function MidiaCRUD() {
           <Image size={24} />
           <h2 className="text-lg font-bold text-white">Banner do Topo (Header)</h2>
         </div>
-        <p className="text-sm text-slate-400 mb-4">Insira o link (URL) da imagem ou GIF que ficará no topo do site.</p>
+        <p className="text-sm text-slate-400 mb-4">Insira o link (URL) da imagem ou faça o upload de um arquivo direto do seu computador.</p>
         
         <div className="flex flex-col gap-3">
-          <input 
-            type="url"
-            value={bannerTopo}
-            onChange={(e) => setBannerTopo(e.target.value)}
-            placeholder="Ex: https://meusite.com/banner.gif"
-            className="bg-slate-950 border border-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 w-full"
-          />
+          <div className="flex flex-col lg:flex-row gap-3">
+            <input 
+              type="url"
+              value={bannerTopo}
+              onChange={(e) => setBannerTopo(e.target.value)}
+              placeholder="Ex: https://meusite.com/banner.gif"
+              className="bg-slate-950 border border-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 flex-1"
+            />
+            <span className="text-slate-500 font-bold self-center">OU</span>
+            <label className="bg-slate-800 hover:bg-slate-700 text-white rounded-lg px-4 py-3 border border-slate-700 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap">
+              <span>Fazer Upload</span>
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, setBannerTopo)} />
+            </label>
+          </div>
+          
           <button 
             onClick={() => handleSalvar('banner_topo', bannerTopo)}
             disabled={salvando === 'banner_topo'}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 self-start"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 self-start mt-2"
           >
             <Save size={18} /> {salvando === 'banner_topo' ? 'Salvo!' : 'Salvar Banner Topo'}
           </button>
@@ -61,20 +84,28 @@ export default function MidiaCRUD() {
           <Image size={24} />
           <h2 className="text-lg font-bold text-white">Banner Lateral (Sidebar)</h2>
         </div>
-        <p className="text-sm text-slate-400 mb-4">Insira o link (URL) da imagem ou GIF que ficará na barra lateral direita.</p>
+        <p className="text-sm text-slate-400 mb-4">Insira o link (URL) da imagem ou faça o upload de um arquivo direto do seu computador.</p>
         
         <div className="flex flex-col gap-3">
-          <input 
-            type="url"
-            value={bannerLateral}
-            onChange={(e) => setBannerLateral(e.target.value)}
-            placeholder="Ex: https://meusite.com/banner-lateral.jpg"
-            className="bg-slate-950 border border-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 w-full"
-          />
+          <div className="flex flex-col lg:flex-row gap-3">
+            <input 
+              type="url"
+              value={bannerLateral}
+              onChange={(e) => setBannerLateral(e.target.value)}
+              placeholder="Ex: https://meusite.com/banner-lateral.jpg"
+              className="bg-slate-950 border border-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 flex-1"
+            />
+            <span className="text-slate-500 font-bold self-center">OU</span>
+            <label className="bg-slate-800 hover:bg-slate-700 text-white rounded-lg px-4 py-3 border border-slate-700 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap">
+              <span>Fazer Upload</span>
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, setBannerLateral)} />
+            </label>
+          </div>
+          
           <button 
             onClick={() => handleSalvar('banner_lateral', bannerLateral)}
             disabled={salvando === 'banner_lateral'}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 self-start"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 self-start mt-2"
           >
             <Save size={18} /> {salvando === 'banner_lateral' ? 'Salvo!' : 'Salvar Banner Lateral'}
           </button>
@@ -106,7 +137,7 @@ export default function MidiaCRUD() {
           <button 
             onClick={() => handleSalvar('video_youtube', videoYoutube)}
             disabled={salvando === 'video_youtube'}
-            className="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 self-start"
+            className="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 self-start mt-2"
           >
             <Save size={18} /> {salvando === 'video_youtube' ? 'Salvo!' : 'Salvar Vídeo'}
           </button>
