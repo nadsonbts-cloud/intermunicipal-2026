@@ -113,24 +113,24 @@ export default function Home() {
                 </span>
               </div>
               
-              <div className="p-5 flex-1 flex flex-col">
+              <div className="p-3 sm:p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
-                  <div className="text-center flex-1 w-24">
+                  <div className="text-center flex-1 min-w-0">
                     {mandante.escudoUrl ? (
-                      <img src={mandante.escudoUrl} alt={mandante.nome} className="w-12 h-12 mx-auto mb-2 object-contain" />
+                      <img src={mandante.escudoUrl} alt={mandante.nome} className="w-12 h-12 mx-auto mb-2 object-contain shrink-0" />
                     ) : (
-                      <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
+                      <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700 shrink-0">
                         {mandante.nome.substring(0, 3).toUpperCase()}
                       </div>
                     )}
                     <p className="text-sm font-semibold text-slate-200 truncate" title={mandante.nome}>{mandante.nome}</p>
                   </div>
                   
-                  <div className="px-2 flex gap-1 items-center">
+                  <div className="px-1 sm:px-2 flex gap-1 items-center shrink-0">
                     <input 
                       type="number" 
                       min="0"
-                      className="w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-xl font-bold focus:border-emerald-500 focus:outline-none"
+                      className="w-8 sm:w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-lg sm:text-xl font-bold focus:border-emerald-500 focus:outline-none"
                       defaultValue={jogo.gols_mandante ?? ''}
                       onBlur={(e) => {
                         if(e.target.value !== '') {
@@ -144,7 +144,7 @@ export default function Home() {
                     <input 
                       type="number" 
                       min="0"
-                      className="w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-xl font-bold focus:border-emerald-500 focus:outline-none"
+                      className="w-8 sm:w-10 h-10 bg-slate-950 border border-slate-700 text-white rounded text-center text-lg sm:text-xl font-bold focus:border-emerald-500 focus:outline-none"
                       defaultValue={jogo.gols_visitante ?? ''}
                       onBlur={(e) => {
                         if(e.target.value !== '') {
@@ -156,11 +156,11 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="text-center flex-1 w-24">
+                  <div className="text-center flex-1 min-w-0">
                     {visitante.escudoUrl ? (
-                      <img src={visitante.escudoUrl} alt={visitante.nome} className="w-12 h-12 mx-auto mb-2 object-contain" />
+                      <img src={visitante.escudoUrl} alt={visitante.nome} className="w-12 h-12 mx-auto mb-2 object-contain shrink-0" />
                     ) : (
-                      <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700">
+                      <div className="w-12 h-12 bg-slate-800 rounded-full mx-auto mb-2 flex items-center justify-center text-slate-500 font-bold border border-slate-700 shrink-0">
                         {visitante.nome.substring(0, 3).toUpperCase()}
                       </div>
                     )}
