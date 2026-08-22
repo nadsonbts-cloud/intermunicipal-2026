@@ -42,9 +42,9 @@ export default function Sidebar() {
       </div>
 
       <div className="hidden lg:block p-6 border-t border-slate-800 w-full">
-        <div className="bg-slate-800 rounded-lg p-4 text-center">
-          <p className="text-xs text-slate-400 uppercase font-semibold">Realização</p>
-          <p className="text-sm font-bold text-white mt-1">FBF</p>
+        <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-slate-700/50">
+          <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider mb-2">Desenvolvido por</p>
+          <img src="/loucos_da_bola.jpg" alt="Loucos da Bola" className="w-full max-w-[120px] mx-auto rounded-lg shadow-sm" />
         </div>
       </div>
     </aside>
