@@ -4,6 +4,7 @@ import { Clock, MapPin, Search } from 'lucide-react';
 import { useCampeonatoStore } from '@/store/campeonatoStore';
 import BannerTopo from '@/components/BannerTopo';
 import MidiaLateral from '@/components/MidiaLateral';
+import VideoDestaque from '@/components/VideoDestaque';
 
 export default function Home() {
   const { partidas, selecoes, atualizarPlacar, isCarregandoBanco, inicializarBanco } = useCampeonatoStore();
@@ -74,6 +75,8 @@ export default function Home() {
           </select>
         </div>
       </header>
+
+      <VideoDestaque />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         {partidasFiltradas.map((jogo) => {
