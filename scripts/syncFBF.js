@@ -42,7 +42,7 @@ async function run() {
   for (const dbTeam of dbEquipes) {
     const fbfMatch = fbfTeams.find(t => t.name.toLowerCase() === dbTeam.nome.toLowerCase() || dbTeam.nome.toLowerCase().includes(t.name.toLowerCase()));
     if (fbfMatch && fbfMatch.escudoUrl) {
-      await supabase.from('equipes').update({ escudoUrl: fbfMatch.escudoUrl }).eq('id', dbTeam.id);
+      await supabase.from('equipes').update({ escudo_url: fbfMatch.escudoUrl }).eq('id', dbTeam.id);
       equipesAtualizadas++;
     }
   }

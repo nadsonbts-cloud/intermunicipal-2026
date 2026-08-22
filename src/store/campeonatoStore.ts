@@ -44,7 +44,10 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
     // 1. Carregar Equipes
     const { data: equipesData, error: equipesError } = await supabase.from('equipes').select('*');
     if (equipesError) console.error("Erro ao carregar equipes:", equipesError);
-    const selecoesCarregadas = (equipesData || []) as Selecao[];
+    const selecoesCarregadas = (equipesData || []).map((e: any) => ({
+      ...e,
+      escudoUrl: e.escudo_url || e.escudoUrl // Fallback in case it's populated manually
+    })) as Selecao[];
 
     // Atualiza estado de selecoes e prepara classificação vazia
     set({ 

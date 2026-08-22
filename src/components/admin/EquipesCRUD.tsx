@@ -23,7 +23,11 @@ export default function EquipesCRUD() {
   const carregarEquipes = async () => {
     setLoading(true);
     const { data, error } = await supabase.from('equipes').select('*').order('nome');
-    if (!error && data) setEquipes(data);
+    if (!error && data) {
+      // Mapear escudo_url para escudoUrl no frontend
+      const mapped = data.map(d => ({...d, escudoUrl: d.escudo_url}));
+      setEquipes(mapped);
+    }
     setLoading(false);
   };
 
@@ -44,10 +48,10 @@ export default function EquipesCRUD() {
     try {
       if (formData.id) {
         // Atualizar
-        await supabase.from('equipes').update({ nome: formData.nome, grupo: formData.grupo, escudoUrl: formData.escudoUrl }).eq('id', formData.id);
+        await supabase.from('equipes').update({ nome: formData.nome, grupo: formData.grupo, escudo_url: formData.escudoUrl }).eq('id', formData.id);
       } else {
         // Inserir
-        await supabase.from('equipes').insert({ nome: formData.nome, grupo: formData.grupo, escudoUrl: formData.escudoUrl });
+        await supabase.from('equipes').insert({ nome: formData.nome, grupo: formData.grupo, escudo_url: formData.escudoUrl });
       }
       setModalOpen(false);
       carregarEquipes();
