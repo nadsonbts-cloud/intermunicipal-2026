@@ -158,21 +158,40 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     setPlacaresAtuais(iniciais);
   }, [partidasFiltradas]);
 
-  const changeScore = (id: string, time: 'gm' | 'gv', sum: number) => {
+  const changeScore = async (id: string, time: 'gm' | 'gv', sum: number) => {
+    const estadoAtual = placaresAtuais[id];
+    const novoValor = Math.max(0, estadoAtual[time] + sum);
+    
+    // 1. Atualiza estado local
     setPlacaresAtuais(prev => ({
       ...prev,
-      [id]: {
-        ...prev[id],
-        [time]: Math.max(0, prev[id][time] + sum)
-      }
+      [id]: { ...prev[id], [time]: novoValor }
     }));
+
+    const gm = time === 'gm' ? novoValor : estadoAtual.gm;
+    const gv = time === 'gv' ? novoValor : estadoAtual.gv;
+
+    // 2. Salva no banco (se AO_VIVO ou FINALIZADO) para ter edição em tempo real
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      await supabase.from('partidas').update({ gols_mandante: gm, gols_visitante: gv }).eq('id', id);
+    }
+    
+    // 3. Atualiza store global
+    atualizarPlacar(id, gm, gv, estadoAtual.status);
   };
 
-  const changeStatus = (id: string, status: any) => {
+  const changeStatus = async (id: string, status: any) => {
     setPlacaresAtuais(prev => ({
       ...prev,
       [id]: { ...prev[id], status }
     }));
+    
+    // Auto-salvar também ao alterar o status
+    const estadoAtual = placaresAtuais[id];
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      await supabase.from('partidas').update({ status }).eq('id', id);
+    }
+    atualizarPlacar(id, estadoAtual.gm, estadoAtual.gv, status);
   };
 
   const salvarNoSupabase = async (id: string) => {

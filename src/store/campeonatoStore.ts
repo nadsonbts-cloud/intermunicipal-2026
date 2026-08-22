@@ -103,7 +103,7 @@ export const useCampeonatoStore = create<CampeonatoState>((set, get) => ({
 
     const classificacao = criarEstadoInicialClassificacao(selecoes);
     
-    partidas.filter(p => p.status === 'FINALIZADO' && p.fase === 1).forEach(p => {
+    partidas.filter(p => (p.status === 'FINALIZADO' || p.status === 'AO_VIVO') && p.fase === 1).forEach(p => {
       const mandante = selecoes.find(s => s.id === p.mandante_id);
       const visitante = selecoes.find(s => s.id === p.visitante_id);
       if(!mandante || !visitante) return;
