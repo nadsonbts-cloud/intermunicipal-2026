@@ -11,11 +11,47 @@ export default function Home() {
   const [rodadaFiltro, setRodadaFiltro] = useState<number>(1);
   const [grupoFiltro, setGrupoFiltro] = useState<string>('Todos');
   const [montado, setMontado] = useState(false);
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   useEffect(() => {
     setMontado(true);
     inicializarBanco();
   }, [inicializarBanco]);
+
+  // Autoseleciona a rodada atual assim que os dados carregam
+  useEffect(() => {
+    if (!isCarregandoBanco && partidas.length > 0 && !hasAutoSelected) {
+      let activeFase = 1;
+      let activeRodada = 1;
+
+      // Pega os jogos que ainda não acabaram
+      const pendingMatches = partidas.filter(p => p.status !== 'FINALIZADO');
+      
+      if (pendingMatches.length > 0) {
+         // Pega a menor fase e menor rodada com jogos pendentes
+         pendingMatches.sort((a, b) => {
+            if (a.fase !== b.fase) return a.fase - b.fase;
+            return a.rodada - b.rodada;
+         });
+         activeFase = pendingMatches[0].fase;
+         activeRodada = pendingMatches[0].rodada;
+      } else {
+         // Se tudo acabou, pega a última rodada de todas
+         const finalizedMatches = [...partidas].sort((a, b) => {
+            if (a.fase !== b.fase) return b.fase - a.fase;
+            return b.rodada - a.rodada;
+         });
+         if (finalizedMatches.length > 0) {
+            activeFase = finalizedMatches[0].fase;
+            activeRodada = finalizedMatches[0].rodada;
+         }
+      }
+
+      setFaseFiltro(activeFase);
+      setRodadaFiltro(activeRodada);
+      setHasAutoSelected(true);
+    }
+  }, [isCarregandoBanco, partidas, hasAutoSelected]);
 
   if (!montado) return null; // Evitar hydration mismatch no estado global
   
